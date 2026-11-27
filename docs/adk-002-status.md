@@ -31,3 +31,6 @@
 - [CI run 46024213238](https://github.com/polarbear9218/AI-DevKit/actions/runs/46024213238) 成功。Reviewer 透過 Connector 獨立讀取 job 140591299747，確認 attempt 1 及候選 gate exit 0。Program 重跑 head 的隔離 gate，17 項測試通過，兩個既有 Reviewer Eval 均可重播。
 - Reviewer 嘗試只重跑此 hosted job。即使以 on-request 啟動，受管 Session 回報 approval policy 為 never，Connector 在發出 GitHub 請求前拒絕。現有證據仍是 attempt 1。此結果無法判定 Connector 在 GitHub 的 Actions 寫入權限。
 - 重新讀回 active Ruleset 28243117，bypass actors 為空，必要 check 只有 GitHub Actions 來源的 Windows engineering gate。Reviewer App 來源尚未配置。現有 GCM 連線經 GitHub 驗證為 admin，未找到已提供的獨立 Program 或 Reviewer 認證入口。未在 Program 環境建立任何 Reviewer 私鑰。
+
+
+負責人已核准私有 Reviewer App 及非管理員 Program 帳號。重新盤點時，未有專用帳號識別或可用的隔離憑證環境；執行及憑證欄位仍未配置。PR #1 維持 Draft 且不執行合併。待取得非敏感的帳號與執行環境識別後正式開始安裝及隔離 PR 驗證。
