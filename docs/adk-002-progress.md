@@ -12,3 +12,11 @@
 | 正式合併與 Athena | 完整驗收前維持 PR 未整合。Athena 產品開發須等待本里程碑。 |
 
 後續應追蹤 Requirement、base、head、PR、run、Review Session、finding、修正輪次、整合決策、Merge SHA 與介入原因。公共紀錄不含憑證或完整 Session 輸出。
+
+
+## GitHub 實際狀態
+
+- [Draft PR #1](https://github.com/polarbear9218/AI-DevKit/pull/1) 已建立並維持未整合。
+- [CI run 46020575099](https://github.com/polarbear9218/AI-DevKit/actions/runs/46020575099) 針對 head 130567123c26345d7284d2749965714f4dc3e269 建立。GitHub annotation 表示帳戶 billing issue 鎖定，runner 未啟動，無測試結果。這是平台阻礙，與刻意注入違規案例無關。
+- [Ruleset 28243117](https://github.com/polarbear9218/AI-DevKit/rules/28243117) 已啟用，main API 回報 protected。規則要求 PR、無 bypass、GitHub Actions 原生來源的 Windows engineering gate、至少一個核准、新版本撤銷舊核准、最後推送者之外核准及對話解決，並禁止非快轉更新及刪除。
+- [Reviewer 與整合](adk-002-review.md) 入口已加入。獨立執行環境、Reviewer App 授權及非管理員 Program 身分仍須實測。現有管理員憑證僅用於已核准的平台設定操作與 Bootstrap 工作分支。

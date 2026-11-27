@@ -11,7 +11,13 @@ ENCODING = re.compile(r"# [*-]*\s*coding[:=]\s*utf-8\s*(?:-\*-)?", re.IGNORECASE
 LINK = re.compile(r"!?\[[^\]\n]+\]\(([^\s()]+)\)")
 SUPPRESSION = re.compile(r"\b(?:noqa|nosec|type:\s*ignore|ruff:|mypy:|pylint:|fmt:|pyright:)", re.I)
 
-CORE_IMPORTS = {"features": set(), "policy": {"features"}, "gate": set(), "evaluation": set()}
+CORE_IMPORTS = {
+    "features": set(),
+    "policy": {"features"},
+    "gate": set(),
+    "evaluation": set(),
+    "integration": set(),
+}
 TEST_BYPASS = {"skip", "skipIf", "skipUnless", "skipTest", "expectedFailure"}
 
 

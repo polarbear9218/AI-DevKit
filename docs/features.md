@@ -9,3 +9,5 @@
 新功能以[範本](feature-template.json)建檔，再更新此索引。執行 `python -m adk features` 探索全部記錄，或加上識別碼、名稱或別名查詢。執行 `python -m adk check` 核對結構、引用與依賴。Athena 和 Hydra 各自維護功能資料。
 
 - [ADK-104 GitHub PR 工程驗證](../features/ADK-104.json)
+
+- [ADK-105 PR 整合資格驗證](../features/ADK-105.json)

@@ -19,6 +19,11 @@ def repository_files(root: Path) -> list[Path]:
 
 
 def main() -> int:
+    if len(sys.argv) > 1 and sys.argv[1] == "integrate":
+        from adk.integration import main as integrate
+
+        del sys.argv[1]
+        return integrate()
     parser = argparse.ArgumentParser(prog="python -m adk")
     parser.add_argument("command", choices=("features", "check", "verify", "verify-commit", "eval"))
     parser.add_argument("query", nargs="?", default="")
