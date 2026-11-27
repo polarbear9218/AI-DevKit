@@ -1,6 +1,6 @@
 # ADK-001 Agent Eval 基線
 
-Session 引用使用實際 Runtime Session ID 的 SHA-256 前 16 碼。完整 ID 與原始觀察留於本機 `.adk`。評分器比對已取證的欄位，觀察來源與下表一起供重驗。
+Session 引用使用實際 Runtime Session ID 的 SHA-256 前 16 碼。完整 ID 留於本機。去敏評分輸入、獨立審查摘錄與隔離異動見 [取證檔案](artifacts/observations.md)。評分器比對已取證的欄位，觀察來源與下表一起供重驗。
 
 | 執行 | 實作版本 | 案例 Git blob | Session 引用 | 判定 |
 | --- | --- | --- | --- | --- |

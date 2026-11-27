@@ -71,7 +71,11 @@ def run_checks(root: Path, command: str, query: str = "") -> int:
         print("\n".join(errors), file=sys.stderr)
         return 1
     if command == "verify":
-        return verify(root)
+        try:
+            return verify(root)
+        except (ValueError, OSError, subprocess.SubprocessError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
     print("Repository policy checks passed")
     return 0
 

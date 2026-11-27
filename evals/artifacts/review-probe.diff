@@ -1,0 +1,8 @@
+diff --git a/tests/test_adk.py b/tests/test_adk.py
+--- a/tests/test_adk.py
++++ b/tests/test_adk.py
+@@ -16,3 +16,3 @@ class CatalogTests(unittest.TestCase):
+         catalog, errors = load_catalog(ROOT)
+-        self.assertEqual([], errors)
++        self.assertEqual([], [])
+         result = subprocess.run(

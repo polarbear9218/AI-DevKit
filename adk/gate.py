@@ -1,16 +1,48 @@
+import hashlib
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
+GITLEAKS_WINDOWS_SHA256 = "9d08e3f5cfb35a98f230b97bcda24f8d3fc66363c91868ffc98dac0afebdcb72"
+
+
+def isolated_environment() -> dict[str, str]:
+    environment = {
+        key: value
+        for key, value in os.environ.items()
+        if not key.upper().startswith(("GIT_", "PYTHON", "GITLEAKS", "MYPY", "RUFF"))
+    }
+    environment.update(
+        GIT_CONFIG_GLOBAL=os.devnull,
+        GIT_CONFIG_NOSYSTEM="1",
+        GIT_ATTR_NOSYSTEM="1",
+    )
+    return environment
+
+
+def scanner_path(root: Path) -> Path:
+    if os.name != "nt":
+        raise ValueError("the verified Gitleaks binary is pinned for Windows x64")
+    path = root / ".tools" / "gitleaks.exe"
+    with path.open("rb") as stream:
+        digest = hashlib.file_digest(stream, "sha256").hexdigest()
+    if digest != GITLEAKS_WINDOWS_SHA256:
+        raise ValueError("Gitleaks binary checksum mismatch")
+    return path
+
 
 def checkout_commit(root: Path, target: str, snapshot: Path) -> None:
+    environment = isolated_environment()
     if not re.fullmatch(r"[a-f0-9]{40}|[a-f0-9]{64}", target):
         raise ValueError("target must be a full commit SHA")
-    head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    head = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=root, text=True, env=environment
+    ).strip()
     if head != target:
         raise ValueError(f"target must be the full checked-out HEAD ({head})")
     subprocess.run(
@@ -26,33 +58,35 @@ def checkout_commit(root: Path, target: str, snapshot: Path) -> None:
         ],
         check=True,
         cwd=root,
+        env=environment,
     )
-    subprocess.run(["git", "checkout", "--quiet", "--detach", target], check=True, cwd=snapshot)
+    for packed_file in (snapshot / ".git" / "objects" / "pack").glob("*"):
+        packed_file.chmod(stat.S_IREAD | stat.S_IWRITE)
+    subprocess.run(
+        ["git", "checkout", "--quiet", "--detach", target],
+        check=True,
+        cwd=snapshot,
+        env=environment,
+    )
 
 
 def verify_commit(root: Path, target: str) -> int:
     with tempfile.TemporaryDirectory() as directory:
         snapshot = Path(directory) / "target"
         checkout_commit(root, target, snapshot)
-        executable = "gitleaks.exe" if os.name == "nt" else "gitleaks"
+        executable = scanner_path(root)
         (snapshot / ".tools").mkdir(exist_ok=True)
-        shutil.copy2(root / ".tools" / executable, snapshot / ".tools" / executable)
-        environment = {
-            key: value
-            for key, value in os.environ.items()
-            if not key.upper().startswith(("PYTHON", "GITLEAKS", "MYPY", "RUFF"))
-        }
+        shutil.copy2(executable, snapshot / ".tools" / executable.name)
         return subprocess.run(
             [sys.executable, "-E", "-s", "-B", "-m", "adk", "verify"],
             cwd=snapshot,
-            env=environment,
+            env=isolated_environment(),
             check=False,
         ).returncode
 
 
 def verify(root: Path) -> int:
-    executable = "gitleaks.exe" if os.name == "nt" else "gitleaks"
-    gitleaks = root / ".tools" / executable
+    gitleaks = scanner_path(root)
     commands = [
         [
             sys.executable,

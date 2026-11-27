@@ -1,13 +1,16 @@
 import json
+import os
+import stat
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from adk.evaluation import score
 from adk.features import cyclic_features, load_catalog, valid_reference
-from adk.gate import checkout_commit
+from adk.gate import checkout_commit, scanner_path
 from adk.policy import check_files, check_markdown, check_python
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -104,7 +107,9 @@ class EvalTests(unittest.TestCase):
             subprocess.run(["git", "init", "--quiet", "--template="], cwd=root, check=True)
             tracked = root / "program.py"
             tracked.write_text("value = 1\n", encoding="utf-8")
-            subprocess.run(["git", "add", "program.py"], cwd=root, check=True)
+            attributes = root / ".gitattributes"
+            attributes.write_text("program.py filter=adkprobe\n", encoding="utf-8")
+            subprocess.run(["git", "add", "program.py", ".gitattributes"], cwd=root, check=True)
             subprocess.run(
                 [
                     "git",
@@ -139,6 +144,29 @@ class EvalTests(unittest.TestCase):
                 b"", subprocess.check_output(["git", "status", "--porcelain"], cwd=root)
             )
             snapshot = Path(directory) / "snapshot"
-            checkout_commit(root, target, snapshot)
+            config = Path(directory) / "gitconfig"
+            config.write_text(
+                '[filter "adkprobe"]\n    smudge = git hash-object --stdin\n', encoding="utf-8"
+            )
+            with patch.dict(os.environ, {"GIT_CONFIG_GLOBAL": str(config)}):
+                unprotected = Path(directory) / "unprotected"
+                subprocess.run(
+                    ["git", "clone", "--quiet", "--no-local", str(root), str(unprotected)],
+                    check=True,
+                )
+                for packed_file in (unprotected / ".git/objects/pack").glob("*"):
+                    packed_file.chmod(stat.S_IREAD | stat.S_IWRITE)
+                self.assertNotEqual(
+                    "value = 1\n", (unprotected / "program.py").read_text(encoding="utf-8")
+                )
+                checkout_commit(root, target, snapshot)
             self.assertEqual("value = 1\n", (snapshot / "program.py").read_text(encoding="utf-8"))
             self.assertFalse((snapshot / "ruff.toml").exists())
+
+    def test_scanner_rejects_modified_binary(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".tools").mkdir()
+            (root / ".tools/gitleaks.exe").write_bytes(b"unexpected executable")
+            with self.assertRaisesRegex(ValueError, "Gitleaks"):
+                scanner_path(root)
