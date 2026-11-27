@@ -25,3 +25,6 @@
 - 本機分支為 main，初始文件基線為 17e6647。本機 origin 已設定為指定的 GitHub SSH URL。
 - 整合前透過 GitHub HTTPS 查詢，未回傳任何遠端 refs。SSH 查詢遭拒絕，使用現有 HTTPS 憑證進行推送試跑也遭拒絕。需完成推送認證，並以實際遠端 main SHA 核對本機提交。
 - 推送前以 Git 檢查空白差異及檔案範圍，並掃描常見憑證格式。ADR-001 仍為 Proposed，ADK-001 仍為部分完成。
+
+
+Git Credential Manager 重新登入後，HTTPS 推送試跑確認可新建 main。保留指定的 SSH origin；此輪透過同一 Repository 的 HTTPS 位址執行一般推送。推送後以遠端 main ref、origin/main 與本機 HEAD 三方比對驗證。SSH 認證仍待建立。
