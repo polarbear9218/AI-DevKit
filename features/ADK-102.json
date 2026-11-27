@@ -1,0 +1,29 @@
+{
+  "id": "ADK-102",
+  "name": "工程政策與軟體驗證",
+  "aliases": [
+    "check",
+    "verify"
+  ],
+  "purpose": "在本機重複執行政策檢查、工具及軟體測試。",
+  "status": "implemented",
+  "behavior": "檢查政策與引用，必要工具失敗時回傳非零。",
+  "entrypoints": [
+    "python -m adk check",
+    "python -m adk verify"
+  ],
+  "code": [
+    "adk/policy.py",
+    "adk/gate.py",
+    "adk/__main__.py"
+  ],
+  "dependencies": [
+    "ADK-101"
+  ],
+  "verification": [
+    "tests/test_adk.py"
+  ],
+  "requirements": [
+    "docs/requirements/ADK-001.md"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "ADK-000",
+  "name": "功能名稱",
+  "purpose": "功能要解決的問題",
+  "status": "planned",
+  "behavior": "預期可觀察行為",
+  "requirements": [
+    "docs/requirements/ADK-001.md"
+  ]
+}

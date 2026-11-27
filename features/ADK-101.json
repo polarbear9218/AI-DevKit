@@ -1,0 +1,27 @@
+{
+  "id": "ADK-101",
+  "name": "Feature Map 探索與驗證",
+  "aliases": [
+    "catalog",
+    "feature discovery"
+  ],
+  "purpose": "依識別碼、名稱及別名定位功能與知識。",
+  "status": "implemented",
+  "behavior": "列出符合查詢的功能，偵測不合法記錄與依賴。",
+  "entrypoints": [
+    "python -m adk features"
+  ],
+  "code": [
+    "adk/features.py",
+    "adk/__main__.py"
+  ],
+  "verification": [
+    "tests/test_adk.py"
+  ],
+  "requirements": [
+    "docs/requirements/ADK-001.md"
+  ],
+  "adrs": [
+    "docs/decisions/ADR-001.md"
+  ]
+}
