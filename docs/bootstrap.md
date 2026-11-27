@@ -5,8 +5,8 @@
 | 盤點、保存需求及知識入口 | 無 | 已盤點空 Repository。原始訊息包含 33 節。 |
 | 技術研究與治理決策 | 盤點 | ADR-001 已有條件核准。工具實跑結果見驗證紀錄。 |
 | 工程核心及 Feature Map | ADR-001 核准 | 已實作初期 CLI、Feature Map 與 gate，Windows 驗證與違規回歸已執行。 |
-| Harness、獨立 Review 與回饋 | 核心與可追溯版本 | 待實作與實跑。確認獨立 Session、刻意植入缺陷的判定、版本證據及介入紀錄。 |
-| Agent Evals 與 dogfooding | 工程核心與審查能力 | 待建立基線，至少完成一次含失敗修復、版本追蹤、審查的真實任務及一次有證據的改善。 |
+| Harness、獨立 Review 與回饋 | 核心與可追溯版本 | Windows 獨立 Session 已執行靜態審查並辨識隔離缺陷。版本 gate 及介入紀錄已建立。 |
+| Agent Evals 與 dogfooding | 工程核心與審查能力 | 已建立基線並完成巢狀模組漏檢的真實改善閉環，見 [Eval 基線](../evals/baseline.md)。 |
 | 最終驗收與 Athena 準備度 | 前述工作包 | 逐項對應原始需求 §29–31。 |
 
 初次盤點顯示 main 尚無 commit，工作目錄只有 .git，未設定 remote。實測 Python 3.12.0、Node.js 20.18.0、Git 2.44.0.windows.1、Codex CLI 0.172.0。工作區採唯讀 Sandbox。版本化基線以第一次成功的 Git commit 為準。

@@ -11,4 +11,4 @@
 verify 組合專案政策、Ruff 格式與 lint、mypy strict、unittest 與 Gitleaks 遮罩掃描。檢查範圍包含 Git 追蹤檔及未被忽略的新檔。Gitleaks 對這個快照掃描。歷史審查另對實際 outgoing commits 執行。驗證結果與 commit SHA 一同保存。
 
 
-提交後執行 `python -m adk verify-commit SHA`，以完整 SHA 比對 HEAD，並在 gate 前後拒絕工作樹或索引的未提交變更。此入口適用於保存版本證據及整合審查。
+提交後執行 `python -m adk verify-commit SHA`，以完整 SHA 比對 HEAD，再以本機隔離 Git clone 讀取提交物件，在脫離分支的快照內執行 gate。Ruff 與 mypy 明確使用該提交的 pyproject.toml。此入口適用於保存版本證據及整合審查。

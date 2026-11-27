@@ -6,6 +6,7 @@ from pathlib import Path
 
 from adk.evaluation import score
 from adk.features import load_catalog, validate_config
+from adk.gate import verify, verify_commit
 from adk.policy import check_files
 
 
@@ -37,9 +38,7 @@ def main() -> int:
         if not args.query or args.observations:
             parser.error("verify-commit requires a full commit SHA")
         try:
-            check_target(Path.cwd(), args.query)
-            result = run_checks(Path.cwd(), "verify")
-            check_target(Path.cwd(), args.query)
+            result = verify_commit(Path.cwd(), args.query)
         except (ValueError, OSError, subprocess.SubprocessError) as exc:
             print(str(exc), file=sys.stderr)
             return 1
@@ -48,14 +47,6 @@ def main() -> int:
     if args.observations or (args.query and args.command != "features"):
         parser.error("only features accepts a query")
     return run_checks(Path.cwd(), args.command, args.query)
-
-
-def check_target(root: Path, target: str) -> None:
-    head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
-    if head != target:
-        raise ValueError(f"target must be the full checked-out HEAD ({head})")
-    if subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=all"], cwd=root):
-        raise ValueError("target verification requires a clean worktree and index")
 
 
 def run_checks(root: Path, command: str, query: str = "") -> int:
@@ -80,8 +71,6 @@ def run_checks(root: Path, command: str, query: str = "") -> int:
         print("\n".join(errors), file=sys.stderr)
         return 1
     if command == "verify":
-        from adk.gate import verify
-
         return verify(root)
     print("Repository policy checks passed")
     return 0

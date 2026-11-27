@@ -7,6 +7,7 @@ from pathlib import Path
 
 from adk.evaluation import score
 from adk.features import cyclic_features, load_catalog, valid_reference
+from adk.gate import checkout_commit
 from adk.policy import check_files, check_markdown, check_python
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -95,3 +96,49 @@ class EvalTests(unittest.TestCase):
         )
         self.assertEqual(1, subprocess_result.returncode)
         self.assertIn(b"full checked-out HEAD", subprocess_result.stderr)
+
+    def test_commit_checkout_ignores_local_inputs(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "source"
+            root.mkdir()
+            subprocess.run(["git", "init", "--quiet", "--template="], cwd=root, check=True)
+            tracked = root / "program.py"
+            tracked.write_text("value = 1\n", encoding="utf-8")
+            subprocess.run(["git", "add", "program.py"], cwd=root, check=True)
+            subprocess.run(
+                [
+                    "git",
+                    "-c",
+                    "user.name=Fixture",
+                    "-c",
+                    "user.email=fixture@example.invalid",
+                    "commit",
+                    "--quiet",
+                    "-m",
+                    "fixture",
+                ],
+                cwd=root,
+                check=True,
+            )
+            target = subprocess.check_output(
+                ["git", "rev-parse", "HEAD"],
+                cwd=root,
+                text=True,
+            ).strip()
+            subprocess.run(
+                ["git", "update-index", "--assume-unchanged", "program.py"],
+                cwd=root,
+                check=True,
+            )
+            tracked.write_text("value = 2\n", encoding="utf-8")
+            info = root / ".git/info"
+            info.mkdir(exist_ok=True)
+            (info / "exclude").write_text("ruff.toml\n", encoding="utf-8")
+            (root / "ruff.toml").write_text("line-length = 500\n", encoding="utf-8")
+            self.assertEqual(
+                b"", subprocess.check_output(["git", "status", "--porcelain"], cwd=root)
+            )
+            snapshot = Path(directory) / "snapshot"
+            checkout_commit(root, target, snapshot)
+            self.assertEqual("value = 1\n", (snapshot / "program.py").read_text(encoding="utf-8"))
+            self.assertFalse((snapshot / "ruff.toml").exists())

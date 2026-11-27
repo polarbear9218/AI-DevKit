@@ -27,3 +27,8 @@ Gitleaks 合成憑證案例改用雜湊生成的假樣本，偵測後回傳 1。
 介入紀錄：階段為工具決策，類型為 Governance Decision，原因是首次引入架構與工具，相依證據為 ADR-001，結果為有條件核准，屬刻意保留的治理步驟。獨立審查命令遭拒屬工程環境限制，Program 改以限定公開範圍的提交資料供獨立 Session 靜態審查，由於審查讀取能力有限，版本證據由程式 gate 綁定。兩者皆有各自的追溯紀錄，沒有請負責人執行一般工程步驟。
 
 Athena 現可試用通用 Feature Map 與 Windows gate。正式整合仍需確認 ADK 最終目標版本的獨立審查、未見案例覆蓋及可重跑安裝，Athena 自身的產品驗證另依 Pilot 工作執行。
+
+
+複審在 bbcdbe1474c661ad2d3194ae51c5988cf5e6dd1d 確認改善閉環，並指出 Git 假乾淨與 Eval 追溯缺口。修正以隔離 clone 執行 SHA gate，加入含假乾淨 Git 狀態及本機 Ruff 設定的回歸測試，並維護 [實測 Eval 基線](../evals/baseline.md)。
+
+在全新 Windows x64 隔離目錄重跑安裝器，6 個固定 Python 套件成功安裝，pip check 無衝突，Gitleaks zip 檢核成功。實際版本 Ruff 0.15.0、mypy 1.19.1、Gitleaks 8.30.0。Linux 與 macOS 尚無實跑證據。
