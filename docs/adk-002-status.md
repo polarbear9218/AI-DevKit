@@ -23,3 +23,11 @@
 
 
 獨立 Reviewer 複審 17928d92429b6fb83463e0384c5c3c19bdaaba82，自主取得正常 CI run 46023620622 與違規 job 140586691661 的實際證據，確認前次兩項 P1 程式修正。受限環境仍無法自行執行 gate。Reviewer 發現的身分及 billing 操作文件落差已在本輪修正。
+
+
+## 本輪重新驗證
+
+- 重新查詢 PR #1 時，base 為 d744fc4b87e81dabff50f1658695586d6032e571，head 為 74aa6a7215a8b48c8a1f498704d73d4ad7620745，合併候選為 e6263c5f858d00aa3897188e137b837617bc50b1。Draft 仍開啟、未整合，原生 Review 筆數為 0。
+- [CI run 46024213238](https://github.com/polarbear9218/AI-DevKit/actions/runs/46024213238) 成功。Reviewer 透過 Connector 獨立讀取 job 140591299747，確認 attempt 1 及候選 gate exit 0。Program 重跑 head 的隔離 gate，17 項測試通過，兩個既有 Reviewer Eval 均可重播。
+- Reviewer 嘗試只重跑此 hosted job。即使以 on-request 啟動，受管 Session 回報 approval policy 為 never，Connector 在發出 GitHub 請求前拒絕。現有證據仍是 attempt 1。此結果無法判定 Connector 在 GitHub 的 Actions 寫入權限。
+- 重新讀回 active Ruleset 28243117，bypass actors 為空，必要 check 只有 GitHub Actions 來源的 Windows engineering gate。Reviewer App 來源尚未配置。現有 GCM 連線經 GitHub 驗證為 admin，未找到已提供的獨立 Program 或 Reviewer 認證入口。未在 Program 環境建立任何 Reviewer 私鑰。
