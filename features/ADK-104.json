@@ -1,0 +1,28 @@
+{
+  "id": "ADK-104",
+  "name": "GitHub PR 工程驗證",
+  "purpose": "在 Windows hosted runner 對實際 PR 合併候選執行工程 gate。",
+  "status": "implemented",
+  "behavior": "驗證 PR base、head 與 merge candidate，再執行既有政策、工具、測試與歷史憑證掃描。",
+  "entrypoints": [
+    "GitHub Actions / Windows engineering gate"
+  ],
+  "code": [
+    ".github/workflows/engineering.yml",
+    "tools/install-ci-git.ps1",
+    "adk/gate.py"
+  ],
+  "verification": [
+    "docs/adk-002-progress.md",
+    "tests/test_adk.py"
+  ],
+  "requirements": [
+    "docs/requirements/ADK-002.md"
+  ],
+  "adrs": [
+    "docs/decisions/ADR-002.md"
+  ],
+  "dependencies": [
+    "ADK-102"
+  ]
+}

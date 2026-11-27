@@ -9,6 +9,7 @@ import tempfile
 from pathlib import Path
 
 GIT_WINDOWS_SHA256 = "bf50371f964f7be61a76ebad7dce8b6197afd47b5b588fc62780823aa097ff63"
+PORTABLE_GIT_SHA256 = "9bf8ee81d79f38a11eaf7799499a634c46a718e009a4a9b2b20b115804643302"
 GITLEAKS_WINDOWS_SHA256 = "9d08e3f5cfb35a98f230b97bcda24f8d3fc66363c91868ffc98dac0afebdcb72"
 
 
@@ -23,6 +24,11 @@ def verify_executable(path: Path, expected: str, label: str) -> Path:
 def git_command() -> str:
     if os.name != "nt":
         return "git"
+    if override := os.environ.get("ADK_GIT_EXECUTABLE"):
+        portable = Path(override)
+        if not portable.is_absolute():
+            raise ValueError("ADK_GIT_EXECUTABLE must be an absolute path")
+        return str(verify_executable(portable, PORTABLE_GIT_SHA256, "PortableGit"))
     install_root = Path(os.environ.get("ProgramFiles", "C:/Program Files"))
     if not install_root.is_absolute():
         raise ValueError("Git for Windows must be installed in an absolute Program Files path")

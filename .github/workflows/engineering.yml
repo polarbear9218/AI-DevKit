@@ -1,0 +1,48 @@
+name: Engineering CI
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review]
+permissions:
+  contents: read
+jobs:
+  engineering:
+    name: Windows engineering gate
+    runs-on: windows-2025
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Fetch and bind the PR merge candidate
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $event = Get-Content -Raw -LiteralPath $env:GITHUB_EVENT_PATH | ConvertFrom-Json
+          if ($env:GITHUB_SHA -notmatch '^[0-9a-f]{40}$' -or $env:GITHUB_REF -notmatch '^refs/pull/[0-9]+/merge$') {
+              throw 'Expected a GitHub pull request merge candidate'
+          }
+          git init --quiet
+          if ($LASTEXITCODE -ne 0) { throw 'Git initialization failed' }
+          git fetch --no-tags "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY.git" "$env:GITHUB_REF"
+          if ($LASTEXITCODE -ne 0) { throw 'PR candidate fetch failed' }
+          git checkout --quiet --detach FETCH_HEAD
+          if ($LASTEXITCODE -ne 0 -or (git rev-parse HEAD) -ne $env:GITHUB_SHA) { throw 'Stale candidate' }
+          if ((git rev-parse HEAD^1) -ne $event.pull_request.base.sha -or (git rev-parse HEAD^2) -ne $event.pull_request.head.sha) {
+              throw 'Candidate parents do not match the pull request'
+          }
+          "PR #$($event.number) base $($event.pull_request.base.sha) head $($event.pull_request.head.sha) candidate $env:GITHUB_SHA" >> $env:GITHUB_STEP_SUMMARY
+      - name: Install and verify pinned engineering tools
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $env:Path = "$(py -3.12 -c 'import sys; from pathlib import Path; print(Path(sys.executable).parent)');$env:Path"
+          if ($LASTEXITCODE -ne 0) { throw 'Python 3.12 unavailable' }
+          ./tools/install-windows.ps1
+          ./tools/install-ci-git.ps1
+      - name: Verify the exact candidate and scan proposed history
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $env:ADK_GIT_EXECUTABLE = Join-Path (Get-Location) '.tools/portable-git/ucrt64/bin/git.exe'
+          .venv/Scripts/python.exe -B -m adk verify-commit $env:GITHUB_SHA
+          if ($LASTEXITCODE -ne 0) { throw 'Candidate verification failed' }
+          .tools/gitleaks.exe git --redact=100 --no-banner --log-opts "HEAD^1..HEAD" .
+          if ($LASTEXITCODE -ne 0) { throw 'PR history secret scan failed' }

@@ -5,8 +5,8 @@
 | 工作包 | 狀態 |
 | --- | --- |
 | 需求、基線與工作分支 | 已保存需求並完成盤點。見 [ADK-002](requirements/ADK-002.md) 與 [ADR-002](decisions/ADR-002.md)。 |
-| 治理與 CI 選型 | 待核准。記錄平台設定、受信任工具、獨立憑證與權限邊界。 |
-| Draft PR 與 ADK-001 回歸 | 先利用現有 gate 驗證，再以草稿 PR 保存進度。 |
+| 治理與 CI 選型 | 推薦方向獲核准，實際能力仍須逐項驗證。 |
+| Draft PR 與 ADK-001 回歸 | 基線提交 bc15010 的 Windows 隔離 gate 通過 10 項測試及工具檢查；已建立 GitHub Draft PR #1。 |
 | CI、獨立執行及身分 | 待核准後實跑，記錄 PR head、合併候選與 run、review ID。 |
 | 整合 gate、保護規則、Eval | 須以真的 GitHub 及隔離違規案例驗證。 |
 | 正式合併與 Athena | 完整驗收前維持 PR 未整合。Athena 產品開發須等待本里程碑。 |
