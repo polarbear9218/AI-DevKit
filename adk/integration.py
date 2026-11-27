@@ -10,6 +10,7 @@ from urllib.error import URLError
 from urllib.request import Request, urlopen
 
 CONTEXT = "Windows engineering gate"
+REVIEW_CONTEXT = "Independent review gate"
 ACTIONS_APP_ID = 15368
 BRANCH = re.compile(r"adk/adk-[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*")
 SHA = re.compile(r"[0-9a-f]{40}")
@@ -130,6 +131,34 @@ def rules_hold(rules: list[dict[str, Any]]) -> bool:
     )
 
 
+def trusted_reviewer(rules: list[dict[str, Any]], checks: list[dict[str, Any]], target: str) -> str:
+    sources = {
+        check.get("integration_id")
+        for rule in rules
+        if rule["type"] == "required_status_checks"
+        for check in rule.get("parameters", {}).get("required_status_checks", [])
+        if check["context"] == REVIEW_CONTEXT
+    }
+    if len(sources) != 1:
+        return ""
+    app_id = sources.pop()
+    if type(app_id) is not int or app_id <= 0 or app_id == ACTIONS_APP_ID:
+        return ""
+    trusted = [
+        check
+        for check in checks
+        if check["name"] == REVIEW_CONTEXT
+        and check["app"]["id"] == app_id
+        and check["head_sha"] == target
+        and check["status"] == "completed"
+        and check["conclusion"] == "success"
+    ]
+    if len(trusted) != 1:
+        return ""
+    slug = trusted[0]["app"]["slug"]
+    return f"{slug}[bot]" if isinstance(slug, str) and slug else ""
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(prog="adk integrate")
     parser.add_argument("repository")
@@ -144,7 +173,6 @@ def main() -> int:
     api = GitHub(args.repository, os.environ.get("ADK_PROGRAM_TOKEN", ""))
     root = f"/repos/{api.repository}"
     route = f"{root}/pulls/{args.number}"
-    reviewer = os.environ.get("ADK_REVIEWER_LOGIN", "")
     try:
         repository = api.request(root)
         identity = api.request("/user") if api.token else {}
@@ -152,6 +180,7 @@ def main() -> int:
         checks = api.request(f"{root}/commits/{args.target}/check-runs?per_page=100")
         reviews = api.request(f"{route}/reviews?per_page=100")
         rules = api.request(f"{root}/rules/branches/main")
+        reviewer = trusted_reviewer(rules, checks["check_runs"], args.target)
         failures = blockers(
             pr,
             checks["check_runs"],
@@ -161,6 +190,8 @@ def main() -> int:
             identity.get("login", ""),
             rules_hold(rules),
         )
+        if not reviewer:
+            failures.append("no successful review check from a Ruleset-designated App")
         permissions = repository.get("permissions", {})
         if permissions.get("admin") is not False or permissions.get("push") is not True:
             failures.append("a non-admin Program identity with push rights is required")

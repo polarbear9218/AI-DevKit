@@ -1,7 +1,7 @@
 import unittest
 from typing import Any
 
-from adk.integration import ACTIONS_APP_ID, CONTEXT, blockers
+from adk.integration import ACTIONS_APP_ID, CONTEXT, REVIEW_CONTEXT, blockers, trusted_reviewer
 
 SHA = "a" * 40
 
@@ -74,3 +74,29 @@ class IntegrationTests(unittest.TestCase):
         self.pr["head"]["ref"] = "main"
         self.pr["head"]["sha"] = "b" * 40
         self.assertGreaterEqual(len(self.findings()), 3)
+
+    def test_reviewer_identity_comes_only_from_platform_rules(self) -> None:
+        rules = [
+            {
+                "type": "required_status_checks",
+                "parameters": {
+                    "required_status_checks": [
+                        {"context": REVIEW_CONTEXT, "integration_id": 123},
+                    ]
+                },
+            }
+        ]
+        observed: list[dict[str, Any]] = [
+            {
+                "name": REVIEW_CONTEXT,
+                "app": {"id": 123, "slug": "example-reviewer"},
+                "head_sha": SHA,
+                "status": "completed",
+                "conclusion": "success",
+            }
+        ]
+        self.assertEqual("example-reviewer[bot]", trusted_reviewer(rules, observed, SHA))
+        self.assertEqual("", trusted_reviewer([], observed, SHA))
+        self.assertEqual("", trusted_reviewer(rules, observed, "b" * 40))
+        observed[0]["app"]["id"] = ACTIONS_APP_ID
+        self.assertEqual("", trusted_reviewer(rules, observed, SHA))

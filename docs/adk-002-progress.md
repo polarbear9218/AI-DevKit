@@ -20,3 +20,8 @@
 - [CI run 46020575099](https://github.com/polarbear9218/AI-DevKit/actions/runs/46020575099) 針對 head 130567123c26345d7284d2749965714f4dc3e269 建立。GitHub annotation 表示帳戶 billing issue 鎖定，runner 未啟動，無測試結果。這是平台阻礙，與刻意注入違規案例無關。
 - [Ruleset 28243117](https://github.com/polarbear9218/AI-DevKit/rules/28243117) 已啟用，main API 回報 protected。規則要求 PR、無 bypass、GitHub Actions 原生來源的 Windows engineering gate、至少一個核准、新版本撤銷舊核准、最後推送者之外核准及對話解決，並禁止非快轉更新及刪除。
 - [Reviewer 與整合](adk-002-review.md) 入口已加入。獨立執行環境、Reviewer App 授權及非管理員 Program 身分仍須實測。現有管理員憑證僅用於已核准的平台設定操作與 Bootstrap 工作分支。
+
+
+- 隔離分支套用與 main 相同之 Ruleset。實際 Git push 回 GitHub GH013，要求 PR 與必要 CI，測試 ref 未改變。暫時規則與分支已清理，main 維持基線並受保護。
+- GitHub REST 讀取在 Python TLS 驗證失敗後，改用 Windows 內建 Schannel TLS，真實 PR 資料讀取成功。未關閉 TLS 憑證驗證。
+- [ADK-002 Eval](../evals/adk-002/README.md) 已重播兩個獨立審查案例。過期核准漏洞被拒絕，較嚴格的測試斷言被正確核准。這兩個案例不代表 GitHub 原生核准或正式 PR 審查通過。
