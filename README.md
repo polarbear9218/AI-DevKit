@@ -10,3 +10,5 @@ ADK 建立可驗證、可信任且可持續演進的 AI 軟體工程環境。長
 - [安裝與驗證](docs/verification.md) ｜ [工作流與角色 Skills](docs/workflow.md) ｜ [執行證據](docs/evidence.md)
 
 - [ADK-002 交付管線進度](docs/adk-002-progress.md)
+
+Athena 產品開發的前置驗收請查閱 [ADK-002 狀態](docs/adk-002-status.md)。

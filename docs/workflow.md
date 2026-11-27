@@ -10,3 +10,5 @@
 改善從觀察與根因開始，選擇可強制的工程階層，執行程式驗證或 Agent Eval，再依結果決定可否委派。Agent Eval 衡量實際 Session 是否解決任務及誠實報告；軟體測試衡量程式行為。
 
 使用 [Program](../.agents/skills/program/SKILL.md)、[Review](../.agents/skills/review/SKILL.md)、[Research](../.agents/skills/research/SKILL.md) 工作流程。
+
+ADK-002 起以 adk/adk-NNN-slug 工作分支及 PR 作正式整合入口。main 透過平台規則保護。Program 記錄需求、base／head、CI、審查與整合結果；需要變更時更新工作分支並重跑同版檢查。[現行整合與審查](adk-002-review.md)

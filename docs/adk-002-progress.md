@@ -25,3 +25,5 @@
 - 隔離分支套用與 main 相同之 Ruleset。實際 Git push 回 GitHub GH013，要求 PR 與必要 CI，測試 ref 未改變。暫時規則與分支已清理，main 維持基線並受保護。
 - GitHub REST 讀取在 Python TLS 驗證失敗後，改用 Windows 內建 Schannel TLS，真實 PR 資料讀取成功。未關閉 TLS 憑證驗證。
 - [ADK-002 Eval](../evals/adk-002/README.md) 已重播兩個獨立審查案例。過期核准漏洞被拒絕，較嚴格的測試斷言被正確核准。這兩個案例不代表 GitHub 原生核准或正式 PR 審查通過。
+
+最新驗收、正負向 CI、獨立審查限制及恢復條件見 [ADK-002 驗收狀態](adk-002-status.md)。
