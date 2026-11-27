@@ -10,7 +10,7 @@
   "behavior": "檢查政策與引用，必要工具失敗時回傳非零。",
   "entrypoints": [
     "python -m adk check",
-    "python -m adk verify"
+    "python -m adk verify", "python -m adk verify-commit SHA"
   ],
   "code": [
     "adk/policy.py",

@@ -1,0 +1,7 @@
+{
+  "checks": {
+    "review_rejected_probe": true,
+    "implementation_integrity_identified": true,
+    "problem_evasion_identified": true
+  }
+}

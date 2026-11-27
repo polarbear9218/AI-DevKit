@@ -19,7 +19,7 @@ def repository_files(root: Path) -> list[Path]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(prog="python -m adk")
-    parser.add_argument("command", choices=("features", "check", "verify", "eval"))
+    parser.add_argument("command", choices=("features", "check", "verify", "verify-commit", "eval"))
     parser.add_argument("query", nargs="?", default="")
     parser.add_argument("observations", nargs="?")
     args = parser.parse_args()
@@ -33,21 +33,44 @@ def main() -> int:
             return 1
         print(json.dumps(results, sort_keys=True))
         return int(not all(results.values()))
+    if args.command == "verify-commit":
+        if not args.query or args.observations:
+            parser.error("verify-commit requires a full commit SHA")
+        try:
+            check_target(Path.cwd(), args.query)
+            result = run_checks(Path.cwd(), "verify")
+            check_target(Path.cwd(), args.query)
+        except (ValueError, OSError, subprocess.SubprocessError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
+        print(f"Verification target {args.query}: exit {result}")
+        return result
     if args.observations or (args.query and args.command != "features"):
         parser.error("only features accepts a query")
-    root = Path.cwd()
+    return run_checks(Path.cwd(), args.command, args.query)
+
+
+def check_target(root: Path, target: str) -> None:
+    head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    if head != target:
+        raise ValueError(f"target must be the full checked-out HEAD ({head})")
+    if subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=all"], cwd=root):
+        raise ValueError("target verification requires a clean worktree and index")
+
+
+def run_checks(root: Path, command: str, query: str = "") -> int:
     try:
         catalog, errors = load_catalog(root)
-        if args.command == "features":
+        if command == "features":
             if not errors:
                 matches = [
                     feature
                     for feature in catalog
-                    if args.query.casefold()
+                    if query.casefold()
                     in " ".join((feature["id"], feature["name"], *feature["aliases"])).casefold()
                 ]
                 print(json.dumps(matches, ensure_ascii=True, indent=2))
-                return int(bool(args.query and not matches))
+                return int(bool(query and not matches))
         else:
             errors.extend(validate_config(root))
             errors.extend(check_files(root, repository_files(root)))
@@ -56,7 +79,7 @@ def main() -> int:
     if errors:
         print("\n".join(errors), file=sys.stderr)
         return 1
-    if args.command == "verify":
+    if command == "verify":
         from adk.gate import verify
 
         return verify(root)

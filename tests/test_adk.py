@@ -85,3 +85,13 @@ class EvalTests(unittest.TestCase):
                 {"known": True, "wrong": False, "missing": False},
                 score(case, result),
             )
+
+    def test_verify_commit_rejects_wrong_target(self) -> None:
+        subprocess_result = subprocess.run(
+            [sys.executable, "-B", "-m", "adk", "verify-commit", "0" * 40],
+            cwd=ROOT,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(1, subprocess_result.returncode)
+        self.assertIn(b"full checked-out HEAD", subprocess_result.stderr)
