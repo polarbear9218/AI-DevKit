@@ -20,3 +20,6 @@
 
 - [ADR-002](decisions/ADR-002.md) · [Reviewer 取證與整合](adk-002-review.md) · [Eval](../evals/adk-002/README.md)
 - [保護規則](https://github.com/polarbear9218/AI-DevKit/rules/28243117) · [正常 run](https://github.com/polarbear9218/AI-DevKit/actions/runs/46022746954)
+
+
+獨立 Reviewer 複審 17928d92429b6fb83463e0384c5c3c19bdaaba82，自主取得正常 CI run 46023620622 與違規 job 140586691661 的實際證據，確認前次兩項 P1 程式修正。受限環境仍無法自行執行 gate。Reviewer 發現的身分及 billing 操作文件落差已在本輪修正。
