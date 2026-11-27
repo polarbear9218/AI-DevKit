@@ -4,6 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from adk.evaluation import score
 from adk.features import load_catalog, validate_config
 from adk.policy import check_files
 
@@ -18,9 +19,22 @@ def repository_files(root: Path) -> list[Path]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(prog="python -m adk")
-    parser.add_argument("command", choices=("features", "check", "verify"))
+    parser.add_argument("command", choices=("features", "check", "verify", "eval"))
     parser.add_argument("query", nargs="?", default="")
+    parser.add_argument("observations", nargs="?")
     args = parser.parse_args()
+    if args.command == "eval":
+        if not args.query or not args.observations:
+            parser.error("eval requires CASE and OBSERVATIONS")
+        try:
+            results = score(Path(args.query), Path(args.observations))
+        except (OSError, ValueError, TypeError, KeyError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
+        print(json.dumps(results, sort_keys=True))
+        return int(not all(results.values()))
+    if args.observations or (args.query and args.command != "features"):
+        parser.error("only features accepts a query")
     root = Path.cwd()
     try:
         catalog, errors = load_catalog(root)

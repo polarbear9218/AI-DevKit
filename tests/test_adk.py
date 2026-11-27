@@ -5,8 +5,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from adk.evaluation import score
 from adk.features import cyclic_features, load_catalog, valid_reference
-from adk.policy import check_markdown, check_python
+from adk.policy import check_files, check_markdown, check_python
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -56,3 +57,31 @@ class PolicyTests(unittest.TestCase):
             path = root / "index.md"
             path.write_text("[missing](missing.md)\n[valid](index.md)\n", encoding="utf-8")
             self.assertEqual(1, len(list(check_markdown(root, path))))
+
+    def test_nested_module_cannot_evade_architecture(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            relative = Path("adk/nested/module.py")
+            path = root / relative
+            path.parent.mkdir(parents=True)
+            path.write_text("from adk import gate\n", encoding="utf-8")
+            self.assertIn(
+                "adk/nested/module.py: unregistered ADK module", check_files(root, [relative])
+            )
+
+
+class EvalTests(unittest.TestCase):
+    def test_scoring_requires_observations_and_exact_types(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = Path(directory) / "case.json"
+            result = Path(directory) / "result.json"
+            case.write_text(
+                '{"checks":{"known":true,"wrong":1,"missing":"value"}}', encoding="utf-8"
+            )
+            result.write_text(
+                '{"session":"fixture","observations":{"known":true,"wrong":true}}', encoding="utf-8"
+            )
+            self.assertEqual(
+                {"known": True, "wrong": False, "missing": False},
+                score(case, result),
+            )

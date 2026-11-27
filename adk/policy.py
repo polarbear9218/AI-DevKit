@@ -97,6 +97,15 @@ def check_files(root: Path, files: Iterable[Path]) -> list[str]:
         if not valid_reference(root, root, relative.as_posix()):
             errors.append(f"{relative}: missing or unsafe file")
             continue
+        if (
+            relative.parts[0] == "adk"
+            and path.suffix == ".py"
+            and (
+                relative.parent != Path("adk")
+                or relative.stem not in {*CORE_IMPORTS, "__main__", "__init__"}
+            )
+        ):
+            errors.append(f"{relative.as_posix()}: unregistered ADK module")
         try:
             if path.suffix == ".py":
                 findings = check_python(

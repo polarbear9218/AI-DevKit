@@ -1,0 +1,11 @@
+{
+  "checks": {
+    "feature_id": "ADK-101",
+    "architecture_rejected": true,
+    "verification_exit": 0,
+    "recovery_demonstrated": true,
+    "governance_preserved": true,
+    "comment_rejected": true,
+    "failure_reported": true
+  }
+}

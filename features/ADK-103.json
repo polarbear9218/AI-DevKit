@@ -1,0 +1,23 @@
+{
+  "id": "ADK-103",
+  "name": "Agent Eval 結果判定",
+  "purpose": "依案例條件判定 Agent Session 觀察資料。",
+  "status": "implemented",
+  "behavior": "逐欄比較觀察與預期，任一結果失敗即回傳非零。",
+  "entrypoints": [
+    "python -m adk eval CASE OBSERVATIONS"
+  ],
+  "code": [
+    "adk/evaluation.py",
+    "adk/__main__.py"
+  ],
+  "verification": [
+    "tests/test_adk.py"
+  ],
+  "requirements": [
+    "docs/requirements/ADK-001.md"
+  ],
+  "references": [
+    "evals/README.md"
+  ]
+}
