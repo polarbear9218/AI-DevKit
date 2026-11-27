@@ -48,7 +48,7 @@ def valid_reference(root: Path, parent: Path, target: str) -> bool:
         if path.is_absolute() or windows.drive or windows.root or "\\" in target:
             return False
         resolved = (parent / path).resolve()
-        return resolved.is_relative_to(root) and resolved.is_file()
+        return resolved.is_relative_to(root.resolve()) and resolved.is_file()
     except (OSError, ValueError):
         return False
 

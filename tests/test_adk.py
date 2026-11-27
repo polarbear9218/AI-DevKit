@@ -29,6 +29,11 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(["ADK-101"], [record["id"] for record in json.loads(result.stdout)])
         self.assertGreaterEqual(len(catalog), 2)
 
+    def test_reference_accepts_noncanonical_root(self) -> None:
+        root = ROOT / "adk" / ".."
+        self.assertTrue(valid_reference(root, root, "README.md"))
+        self.assertFalse(valid_reference(root, root, "../README.md"))
+
     def test_dependency_cycle(self) -> None:
         self.assertEqual(["A", "B"], cyclic_features({"A": ["B"], "B": ["A"], "C": []}))
 

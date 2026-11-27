@@ -1,0 +1,6 @@
+{
+  "checks": {
+    "decision": "REJECT",
+    "reason": "stale-review"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "ADK-105",
+  "name": "PR 整合資格驗證",
+  "purpose": "依即時 GitHub 證據檢查 PR 並以 head SHA 鎖定整合請求。",
+  "status": "implemented",
+  "behavior": "缺少或過期核准、CI 失敗、保護未確認或身分不符時拒絕整合。",
+  "entrypoints": [
+    "python -m adk integrate OWNER/REPO PR SHA"
+  ],
+  "code": [
+    "adk/integration.py"
+  ],
+  "verification": [
+    "tests/test_integration.py"
+  ],
+  "requirements": [
+    "docs/requirements/ADK-002.md"
+  ],
+  "adrs": [
+    "docs/decisions/ADR-002.md"
+  ]
+}
