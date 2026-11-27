@@ -7,11 +7,11 @@
 | 工程核心及 Feature Map | ADR-001 核准 | 已實作初期 CLI、Feature Map 與 gate，Windows 驗證與違規回歸已執行。 |
 | Harness、獨立 Review 與回饋 | 核心與可追溯版本 | Windows 獨立 Session 已執行靜態審查並辨識隔離缺陷。版本 gate 及介入紀錄已建立。 |
 | Agent Evals 與 dogfooding | 工程核心與審查能力 | 已建立基線並完成巢狀模組漏檢的真實改善閉環，見 [Eval 基線](../evals/baseline.md)。 |
-| 最終驗收與 Athena 準備度 | 前述工作包 | 逐項對應原始需求 §29–31。 |
+| 最終驗收與 Athena 準備度 | 前述工作包 | Windows MVEE 已通過同版 gate 與獨立複審，見 [最終驗收](acceptance.md)。 |
 
 初次盤點顯示 main 尚無 commit，工作目錄只有 .git，未設定 remote。實測 Python 3.12.0、Node.js 20.18.0、Git 2.44.0.windows.1、Codex CLI 0.172.0。工作區採唯讀 Sandbox。版本化基線以第一次成功的 Git commit 為準。
 
-ADR-001 已有條件核准。恢復時先確認分支、驗證覆蓋與尚待處理的審查 finding。完整驗收仍待確認，現有證據見 [ADK-001 執行紀錄](evidence.md)。
+ADR-001 已有條件核准。恢復時先確認分支、驗證覆蓋與尚待處理的審查 finding。已完成 Windows MVEE 驗收，過程證據見 [ADK-001 執行紀錄](evidence.md)。
 
 ## 基線驗證
 
