@@ -8,7 +8,26 @@ import sys
 import tempfile
 from pathlib import Path
 
+GIT_WINDOWS_SHA256 = "bf50371f964f7be61a76ebad7dce8b6197afd47b5b588fc62780823aa097ff63"
 GITLEAKS_WINDOWS_SHA256 = "9d08e3f5cfb35a98f230b97bcda24f8d3fc66363c91868ffc98dac0afebdcb72"
+
+
+def verify_executable(path: Path, expected: str, label: str) -> Path:
+    with path.open("rb") as stream:
+        digest = hashlib.file_digest(stream, "sha256").hexdigest()
+    if digest != expected:
+        raise ValueError(f"{label} binary checksum mismatch")
+    return path
+
+
+def git_command() -> str:
+    if os.name != "nt":
+        return "git"
+    install_root = Path(os.environ.get("ProgramFiles", "C:/Program Files"))
+    if not install_root.is_absolute():
+        raise ValueError("Git for Windows must be installed in an absolute Program Files path")
+    executable = install_root / "Git" / "mingw64" / "bin" / "git.exe"
+    return str(verify_executable(executable, GIT_WINDOWS_SHA256, "Git"))
 
 
 def isolated_environment() -> dict[str, str]:
@@ -28,26 +47,22 @@ def isolated_environment() -> dict[str, str]:
 def scanner_path(root: Path) -> Path:
     if os.name != "nt":
         raise ValueError("the verified Gitleaks binary is pinned for Windows x64")
-    path = root / ".tools" / "gitleaks.exe"
-    with path.open("rb") as stream:
-        digest = hashlib.file_digest(stream, "sha256").hexdigest()
-    if digest != GITLEAKS_WINDOWS_SHA256:
-        raise ValueError("Gitleaks binary checksum mismatch")
-    return path
+    return verify_executable(root / ".tools" / "gitleaks.exe", GITLEAKS_WINDOWS_SHA256, "Gitleaks")
 
 
 def checkout_commit(root: Path, target: str, snapshot: Path) -> None:
     environment = isolated_environment()
+    git = git_command()
     if not re.fullmatch(r"[a-f0-9]{40}|[a-f0-9]{64}", target):
         raise ValueError("target must be a full commit SHA")
     head = subprocess.check_output(
-        ["git", "rev-parse", "HEAD"], cwd=root, text=True, env=environment
+        [git, "rev-parse", "HEAD"], cwd=root, text=True, env=environment
     ).strip()
     if head != target:
         raise ValueError(f"target must be the full checked-out HEAD ({head})")
     subprocess.run(
         [
-            "git",
+            git,
             "clone",
             "--quiet",
             "--no-local",
@@ -63,7 +78,7 @@ def checkout_commit(root: Path, target: str, snapshot: Path) -> None:
     for packed_file in (snapshot / ".git" / "objects" / "pack").glob("*"):
         packed_file.chmod(stat.S_IREAD | stat.S_IWRITE)
     subprocess.run(
-        ["git", "checkout", "--quiet", "--detach", target],
+        [git, "checkout", "--quiet", "--detach", target],
         check=True,
         cwd=snapshot,
         env=environment,
@@ -127,7 +142,8 @@ def verify(root: Path) -> int:
     with tempfile.TemporaryDirectory() as directory:
         scan_root = Path(directory)
         paths = subprocess.check_output(
-            ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"], cwd=root
+            [git_command(), "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+            cwd=root,
         )
         for name in set(paths.split(b"\0")) - {b""}:
             relative = Path(name.decode("utf-8"))

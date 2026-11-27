@@ -6,13 +6,13 @@ from pathlib import Path
 
 from adk.evaluation import score
 from adk.features import load_catalog, validate_config
-from adk.gate import verify, verify_commit
+from adk.gate import git_command, verify, verify_commit
 from adk.policy import check_files
 
 
 def repository_files(root: Path) -> list[Path]:
     output = subprocess.check_output(
-        ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+        [git_command(), "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
         cwd=root,
     )
     return sorted({Path(name.decode("utf-8")) for name in output.split(b"\0") if name})

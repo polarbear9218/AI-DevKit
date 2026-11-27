@@ -159,7 +159,12 @@ class EvalTests(unittest.TestCase):
                 self.assertNotEqual(
                     "value = 1\n", (unprotected / "program.py").read_text(encoding="utf-8")
                 )
-                checkout_commit(root, target, snapshot)
+                fake_bin = Path(directory) / "fake-bin"
+                fake_bin.mkdir()
+                (fake_bin / "git.exe").write_bytes(b"not the selected Git")
+                fake_path = str(fake_bin) + os.pathsep + os.environ["PATH"]
+                with patch.dict(os.environ, {"PATH": fake_path}):
+                    checkout_commit(root, target, snapshot)
             self.assertEqual("value = 1\n", (snapshot / "program.py").read_text(encoding="utf-8"))
             self.assertFalse((snapshot / "ruff.toml").exists())
 

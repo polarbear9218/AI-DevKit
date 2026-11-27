@@ -12,3 +12,6 @@ verify 組合專案政策、Ruff 格式與 lint、mypy strict、unittest 與 Git
 
 
 提交後執行 `python -m adk verify-commit SHA`，以完整 SHA 比對 HEAD，再以本機隔離 Git clone 讀取提交物件，在脫離分支的快照內執行 gate。Ruff 與 mypy 明確使用該提交的 pyproject.toml。此入口適用於保存版本證據及整合審查。
+
+
+版本驗證使用 Git for Windows 2.44.0.windows.1 的 Program Files 安裝，校驗 mingw64/bin/git.exe 的 SHA-256 後以絕對路徑啟動。Gitleaks 同樣校驗已驗證 Windows x64 發布檔所解出的執行檔。不同 Git 發行版或工具升級須先更新並驗證安裝雜湊；其他平台尚未驗證完整 gate。

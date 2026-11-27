@@ -32,3 +32,6 @@ Athena 現可試用通用 Feature Map 與 Windows gate。正式整合仍需確�
 複審在 bbcdbe1474c661ad2d3194ae51c5988cf5e6dd1d 確認改善閉環，並指出 Git 假乾淨與 Eval 追溯缺口。修正以隔離 clone 執行 SHA gate，加入含假乾淨 Git 狀態及本機 Ruff 設定的回歸測試，並維護 [實測 Eval 基線](../evals/baseline.md)。
 
 在全新 Windows x64 隔離目錄重跑安裝器，6 個固定 Python 套件成功安裝，pip check 無衝突，Gitleaks zip 檢核成功。實際版本 Ruff 0.15.0、mypy 1.19.1、Gitleaks 8.30.0。Linux 與 macOS 尚無實跑證據。
+
+
+獨立複審 d859d758bb0e19742a20687a1bd6dfdf1761d3a3 確認 Eval 可重播證據已補齊，另要求排除 PATH 替代 Git 的風險。修正以 Program Files 的 Git 絕對路徑與執行檔 SHA-256 核對，並用隔離 PATH 回歸驗證。檢查與已知工具限制見 [驗證指引](verification.md)。
